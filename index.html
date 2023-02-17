@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Messagerie vocale</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body class="m-6">
+  <button>click</button>
+  <div style="margin-bottom: 200px;">
+    <div  x-cloak x-data="{play: false ,id: $id('audio'), audio: new Audio('/son.mp3')}"  class="flex items-center">
+      <audio src="/son.mp3" :id="id"></audio>
+      <template x-if="play">
+        <svg @click="play=!play"  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+        </svg>     
+      </template> 
+      <template x-if="!play">
+        <svg @click="play=!play" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+        </svg>
+      </template>
+      <input type="range" value="0" min="0" max="100" id="input1" step="1">
+      <script>
+        const audio = new Audio("/son.mp3");
+          const playBtn = document.querySelector("button");
+          const progressEl = document.querySelector('#input1');
+         let mouseDownOnSlider = false;
+   
+   audio.addEventListener("loadeddata", () => {
+     progressEl.value = 0;
+   });
+   audio.addEventListener("timeupdate", () => {
+     if (!mouseDownOnSlider) {
+       progressEl.value = audio.currentTime / audio.duration * 100;
+     }
+   });
+   audio.addEventListener("ended", () => {
+     playBtn.textContent = "▶️";
+   });
+   
+   playBtn.addEventListener("click", () => {
+     audio.paused ? audio.play() : audio.pause();
+     playBtn.textContent = audio.paused ? "▶️" : "⏸️";
+   });
+   
+   progressEl.addEventListener("change", () => {
+     const pct = progressEl.value / 100;
+     audio.currentTime = (audio.duration || 0) * pct;
+   });
+   progressEl.addEventListener("mousedown", () => {
+     mouseDownOnSlider = true;
+   });
+   progressEl.addEventListener("mouseup", () => {
+     mouseDownOnSlider = false;
+   });
+        </script>
+        <style>
+          input[type="range"] {
+            -webkit-appearance: none;
+            margin-right: 15px;
+            width: 200px;
+            height: 7px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 5px;
+            background-image: linear-gradient(#bb9486, rgb(150, 18, 18));
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+          }
+          
+          input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background:gray;
+            cursor: ew-resize;
+            box-shadow: 0 0 2px 0 #555;
+            transition: background .3s ease-in-out;
+          }
+          
+          input[type=range]::-webkit-slider-runnable-track  {
+            -webkit-appearance: none;
+            box-shadow: none;
+            border: none;
+            background: transparent;
+          }
+        </style>
+    </div>
+    <div  x-cloak x-data="{play: false, id: $id('audio')}"  class="flex items-center">
+      <audio src="/son.mp3" :id="id"></audio>
+      <template x-if="play">
+        <svg @click="play=!play, document.getElementById('audio-1').pause()"  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+        </svg>     
+      </template> 
+      <template x-if="!play">
+        <svg @click="play=!play, document.getElementById('audio-1').play()" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+        </svg>
+      </template>
+      <div class="overflow-hidden h-2 bg-gray-300 rounded " style="width: 500px;">
+        <div class="bg-gray-500 w-6 h-2"></div>
+      </div>
+      <script>
+        function vitui(){
+          alert('fd')
+        }
+      
+      </script>
+  </div>
+  <h1>Messagerie vocale</h1>
+  <div>
+    <button id="start-recording">Démarrer l'enregistrement</button>
+    <button id="stop-recording">Arrêter l'enregistrement</button>
+  </div>
+  <div>
+    <audio id="audio-player" controls></audio>
+  </div>
+  <style>
+    [x-cloak] { display: none; }
+  </style>
+  <script>
+    const startButton = document.getElementById("start-recording");
+    const stopButton = document.getElementById("stop-recording");
+    const audioPlayer = document.getElementById("audio-player");
+
+    let mediaRecorder;
+    let chunks = [];
+    let event
+
+    startButton.addEventListener("click", async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.addEventListener("dataavailable", (event) => {
+        console.log(event)
+        chunks.push(event.data);
+      });
+      mediaRecorder.start();
+    });
+
+    stopButton.addEventListener("click", async () => {
+      mediaRecorder.stop();
+      mediaRecorder.addEventListener("dataavailable", () => {
+        const blob = new Blob(chunks, { type: "audio/mpeg" });
+        const audioUrl = URL.createObjectURL(blob);
+        audioPlayer.src = audioUrl;
+        console.log(audioPlayer.duration)
+        // Récupération du fichier audio enregistré
+        const fileName = "enregistrement-" + Date.now() + ".mp3";
+        // Création d'un objet FormData pour encapsuler le fichier audio
+        const formData = new FormData();
+        formData.append("audio", blob, fileName);
+
+        const audioLink = document.createElement("a")
+        audioLink.href = audioUrl;
+        audioLink.download = fileName
+        audioLink.innerHTML = "Télécharger"
+        document.body.appendChild(audioLink);
+      });
+
+
+    });
+
+
+// Envoi de la requête AJAX
+    /* $.ajax({
+      url: "/upload-audio",
+      type: "POST",
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function(data) {
+        console.log("Fichier audio envoyé avec succès");
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.error("Erreur lors de l'envoi du fichier audio:", errorThrown);
+      }
+    }); */
+  </script>
+</body>
+
+</html>
